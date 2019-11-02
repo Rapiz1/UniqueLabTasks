@@ -2,8 +2,11 @@
 #include <algorithm>
 #include <iostream>
 #include <vector>
-#include "assert.h"
 #include <cmath>
+#ifdef DBG
+#include "assert.h"
+#endif
+
 #define UNIQUE_FIB_HEAP_H
 namespace fib_heap {
 typedef unsigned int size_type;
@@ -56,14 +59,11 @@ Node<T>::~Node() {
 }
 template <typename T>
 void Node<T>::Detach() {
-  assert(this);
   if (parent_) {
     parent_->degree_--;
     if (parent_->child_ == this)
       parent_->child_ = this == this->right_ ? nullptr : this->right_;
   }
-  assert(left_);
-  assert(right_);
   left_->right_ = right_;
   right_->left_ = left_;
   parent_ = nullptr;
@@ -73,7 +73,6 @@ template <typename T>
 void Node<T>::Attach(Node<T>* parent) {
   mark_ = false;
   parent->degree_++;
-  assert(!parent_);
   if (parent->child_) {
     Concatenate(parent->child_);
   }
@@ -84,7 +83,6 @@ void Node<T>::Attach(Node<T>* parent) {
 }
 template <typename T>
 void Node<T>::Concatenate(Node<T>* node) {
-  assert(node);
   Node<T>*right = right_, *left = node->left_;
   right_ = node;
   node->left_ = this;
@@ -99,12 +97,6 @@ PriorityQueue<T>::PriorityQueue() {
 }
 template <typename T>
 PriorityQueue<T>::~PriorityQueue() {
-  /*
-  if (top_ == nullptr) return;
-  for (Node<T>*p = top_->right_; p != top_; p = p->right_)
-    delete p;
-  delete top_;
-  */
   while (!empty())
     pop();
 }
@@ -139,21 +131,16 @@ void PriorityQueue<T>::Consolidate() {
     rt_list.push_back(p);
     p = p->right_;
   } while (p != start);
-  //int n = 1;
-  //for (Node<T>* p = top_->right_; p != top_; p = p->right_) n++;
-  //std::vector<Node<T>*> a(rt_list.size()+1,nullptr);
   int a_size = log2(size_) + 10;
   std::vector<Node<T>*> a(a_size,nullptr);
+  #ifdef DBG
   assert(top_->degree_ < a_size);
-  //a[top_->degree_] = top_;
+  #endif
   for (auto p : rt_list) {
     Node<T>* x = p;
-    assert(x);
     int d = x->degree_;
     while (a[d] != nullptr) {
       Node<T>* y = a[d];
-      assert(y);
-      assert(x);
       if (x->value_ < y->value_) std::swap(x, y);
       y->Detach();
       y->Attach(x);
@@ -181,14 +168,12 @@ void PriorityQueue<T>::pop() {
     if (child) {
       top_->child_ = nullptr;
       child->parent_ = nullptr;
-      /*
-      for(Node<T>* x = child->right_; x != child; x = x->right_)
-        x->parent_ = nullptr;
-        */
       child->Concatenate(top_);
     }
     Node<T>* p = top_->right_;
+    #ifdef DBG
     assert(p != top_);
+    #endif
     top_->Detach();
     delete top_;
     top_ = p;
