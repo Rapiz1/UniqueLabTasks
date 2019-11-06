@@ -1,3 +1,5 @@
+// You can not make a built-in command in background
+// count 'jobs' is not implemented
 #include "shell.h"
 #include "constants.h"
 #include "helper.h"
@@ -43,6 +45,7 @@ void ShInit() {
   stream[1] = stdout;
   stream[2] = stdout;
   ShReadEnv();
+  signal(SIGCHLD, SIG_IGN); // prevent zombie
 }
 void ShLoop() {
   char* line;
@@ -227,7 +230,8 @@ int ShLaunch(char** args, bool bg) {
       } while (!WIFEXITED(status) && !WIFSIGNALED(status));
       signal(SIGINT, SIG_IGN);
     } else {
-      printf("%d ", pid);
+      jobs++;
+      printf("[%d] %d ", jobs, pid);
       for (int i = 0; args[i]; i++) printf("%s ", args[i]);
       putchar('\n');
     }
