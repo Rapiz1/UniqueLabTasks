@@ -2,7 +2,7 @@ SHELL_OBJS = *.c builtin/*.c
 CC = gcc
 CFLAGS = -D_GNU_SOURCE -g -Wall
 SHELL_NAME = rsh
-UTILS = cp mv rm ls touch mkdir ln cat xargs
+UTILS = cp mv rm ls touch mkdir ln cat xargs more
 
 BUILD = build/
 BIN = $(BUILD)bin/
