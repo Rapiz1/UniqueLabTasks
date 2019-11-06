@@ -1,4 +1,3 @@
-#define _GUN_SOURCE
 #include "../constants.h"
 
 #include <stdbool.h>
