@@ -6,13 +6,14 @@
 int rm(const char* path) {
   int status = unlink(path);
   if (status)
-    fprintf(stderr, "rm: %s: %s\n", path, strerror(errno));
+    fprintf(stderr, "%s: %s\n", path, strerror(errno));
   return status;
 }
 int main(int argc, char** argv) {
+  puts("*rsh version*");
   if (argc > 1) {
     int status = 0;
-    for (int i = 0; i < argc; i++)
+    for (int i = 1; i < argc; i++)
       status |= rm(argv[i]);
     return status;
   } else {

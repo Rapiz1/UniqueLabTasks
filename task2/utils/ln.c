@@ -1,3 +1,5 @@
+#include "../helper.h"
+
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h>
@@ -29,10 +31,11 @@ int ln(char* src, char* dest) {
     status |= symlink(src, dest);
   else
     status |= link(src, dest);
-  perror("ln");
+  UnixError("ln");
   return 0;
 }
 int main(int argc, char** argv) {
+  puts("*rsh version*");
   for (int ch;(ch = getopt(argc, argv, "s") != -1);) {
     switch (ch) {
       case 's':

@@ -6,9 +6,11 @@
 #include <stdio.h>
 
 void UnixError(char* msg) {
-  char str[SHELL_BUFFER_LEN];
-  sprintf(str, "%s: %s\n", msg, strerror(errno));
-  PrintError(str);
+  if (errno) {
+    char str[SHELL_BUFFER_LEN];
+    sprintf(str, "%s: %s\n", msg, strerror(errno));
+    PrintError(str);
+  }
 }
 pid_t Fork() {
   pid_t pid = fork();

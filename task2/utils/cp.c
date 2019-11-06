@@ -39,6 +39,7 @@ int cp(char* src, char* dest) {
   return 0;
 }
 int main(int argc, char** argv) {
+  puts("*rsh version*");
   if (argc == 1) {
     fprintf(
         stderr,

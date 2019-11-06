@@ -29,6 +29,7 @@ int mv(char* src, char* dest) {
   return status;
 }
 int main(int argc, char** argv) {
+  puts("*rsh version*");
   if (argc == 1) {
     fprintf(
         stderr,

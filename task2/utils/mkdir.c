@@ -6,6 +6,7 @@
 #include <string.h>
 #include <errno.h>
 int main(int argc, char** argv) {
+  puts("*rsh version*");
   if (argc > 1) {
     int status = 0;
     for (int i = 1; i < argc; i++) {

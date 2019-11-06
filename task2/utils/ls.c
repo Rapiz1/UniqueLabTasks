@@ -1,3 +1,5 @@
+#include "../helper.h"
+
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
@@ -56,7 +58,7 @@ void PrintFile(struct dirent* entry, const char* path) {
   }
   strcat(filePath, entry->d_name);
   stat(filePath, &buf);
-  perror("ls");
+  UnixError("ls");
   char str[100];
   strmode(buf.st_mode, str);
   printf("%s", str);
@@ -89,6 +91,7 @@ int ls(const char* path) {
   return 0;
 }
 int main(int argc, char** argv) {
+  puts("*rsh version*");
   int ch;
   while ((ch = getopt(argc, argv, "l")) != -1) {
     switch (ch) {
