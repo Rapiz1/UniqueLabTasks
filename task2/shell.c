@@ -202,7 +202,7 @@ pid_t pid, wpid;
 int jobs;
 void KillChild() {
   fprintf(stream[SHELL_STREAM_ERR], "Interrupt\n");
-  kill(pid, SIGTERM);
+  kill(pid, SIGINT);
 }
 int ShLaunch(char** args, bool bg) {
   int status = EXIT_SUCCESS;
