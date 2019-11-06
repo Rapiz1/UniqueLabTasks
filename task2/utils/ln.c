@@ -1,5 +1,3 @@
-#include "../helper.h"
-
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h>
@@ -8,6 +6,8 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <libgen.h>
+#include <errno.h>
+
 extern int optind;
 bool soft_link;
 bool IsDir(char* path) {
@@ -31,7 +31,7 @@ int ln(char* src, char* dest) {
     status |= symlink(src, dest);
   else
     status |= link(src, dest);
-  UnixError("ln");
+  if (errno) perror("ln");
   return 0;
 }
 int main(int argc, char** argv) {

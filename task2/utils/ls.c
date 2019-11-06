@@ -1,5 +1,3 @@
-#include "../helper.h"
-
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
@@ -58,7 +56,7 @@ void PrintFile(struct dirent* entry, const char* path) {
   }
   strcat(filePath, entry->d_name);
   stat(filePath, &buf);
-  UnixError("ls");
+  if (errno) perror("ls");
   char str[100];
   strmode(buf.st_mode, str);
   printf("%s", str);
