@@ -4,44 +4,83 @@
 
 #include "../constants.h"
 
+#include <errno.h>
+#include <fcntl.h>
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/ioctl.h>
+#include <sys/types.h>
 #include <termios.h>  //termios, TCSANOW, ECHO, ICANON
 #include <unistd.h>   //STDIN_FILENO
-#include <signal.h>
 
 struct termios oldt, newt;
 struct winsize w;
-int total_lines, pos;
-int next(FILE* f, int num) {
-  char buf[SHELL_BUFFER_LEN];
-  int ret = 0;
-  while (num-- > 0 && fgets(buf, SHELL_BUFFER_LEN, f)) {
-    printf("%s", buf);
-    ret++;
+int total, lines;
+void backward(int f, int num) {
+  num++;
+  char ch[3];
+  while (num--) {
+    int n;
+    int pos;
+    while (n = read(f, ch, 1)) {
+      if (n < 0) return;
+      if (!(pos = lseek(f, 0, SEEK_CUR))) return;
+      if (pos < 2) {
+        lseek(f, 0, SEEK_SET);
+        return;
+      } else
+        lseek(f, -2, SEEK_CUR);
+      if (ch[0] == '\n') break;
+    }
   }
-  if (pos + ret < total_lines)
-  printf("--More--(%d%%)\r", (int)((double)pos/total_lines*100 + 0.5));
-  fflush(stdout);
-  return ret;
+  lseek(f, 2, SEEK_CUR);
 }
-void more(FILE* f) {
-  total_lines = pos = 0;
-  for (char ch; (ch = fgetc(f)) != -1;) total_lines += ch == '\n';
-  fseek(f, 0, SEEK_SET);
-  pos += next(f, w.ws_row);
-  for (; pos < total_lines;) {
+void next(int f, int num) {
+  char ch[2];
+  printf("              \r");
+  while (num--) {
+    int n;
+    while (n = read(f, ch, 1)) {
+      if (n < 0) break;
+      putchar(ch[0]);
+      if (ch[0] == '\n') break;
+    }
+  }
+  int pos;
+  if ((pos = lseek(f, 0, SEEK_CUR)) < total)
+    printf("--More--(%d%%)\r", (int)((double)pos / total * 100 + 0.5));
+  fflush(stdout);
+}
+void more(int f) {
+  int len = 0;
+  total = 0, lines = 0;
+  char buf[SHELL_BUFFER_LEN];
+  while (len = read(f, buf, SHELL_BUFFER_LEN - 1)) {
+    if (len <= 0) break;
+    total += len;
+    for (char* p = buf; p + 1 && (p = strchr(p + 1, '\n')); lines++)
+      ;
+  }
+  lseek(f, 0, SEEK_SET);
+  next(f, w.ws_row - 1);
+  while (lseek(f, 0, SEEK_CUR) < total) {
     char c = getchar();
     switch (c) {
+      case 'b':
+        backward(f, w.ws_row + w.ws_row - 2);
       case 'f':
-        pos += next(f, w.ws_row);
+        next(f, w.ws_row - 1);
         break;
       case 's':
       case '\n':
       case 'z':
       case ' ':
-        pos += next(f, 1);
+        next(f, 1);
+        break;
+      case 'q':
+        return;
         break;
       default:
         break;
@@ -78,17 +117,17 @@ int main(int argc, char** argv) {
   ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
   signal(SIGINT, restore);
   if (argc == 1)
-    more(stdin);
+    more(STDIN_FILENO);
   else
     for (int i = 1; i < argc; i++) {
-      if (access(argv[i], F_OK)) {
-        fprintf(stderr, "%s does not exist\n", argv[i]);
+      int f = open(argv[i], O_RDONLY);
+      if (f <= 0) {
+        perror("more");
         continue;
       }
-      FILE* f = fopen(argv[i], "r");
       if (i > 1) puts("************");
       more(f);
-      fclose(f);
+      close(f);
     }
   /*restore the old settings*/
   restore();
