@@ -1,23 +1,32 @@
-#include <errno.h>
+#include "../constants.h"
+
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
-void cat(FILE* f) {
-  char ch;
-  while ((ch = fgetc(f)) != EOF) putchar(ch);
+#include <errno.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+void cat(int f) {
+  char buf[SHELL_BUFFER_LEN];
+  int len = 0;
+  while (len = read(f, buf, SHELL_BUFFER_LEN)) {
+    if (len <= 0) break;
+    write(STDOUT_FILENO, buf, len);
+  }
 }
 int main(int argc, char** argv) {
   puts("*rsh version*");
   if (argc == 1) {
-    cat(stdin);
+    cat(STDIN_FILENO);
   } else {
     for (int i = 1; i < argc; i++) {
-      FILE* f = fopen(argv[i], "r");
-      if (f) {
+      int f = open(argv[i], O_RDONLY);
+      if (f > 0) {
         cat(f);
-        fclose(f);
+        close(f);
       } else {
-        fprintf(stderr, "%s: %s\n", argv[i], strerror(errno));
+        perror("cat");
       }
     }
   }
