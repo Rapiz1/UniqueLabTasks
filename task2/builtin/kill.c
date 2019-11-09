@@ -2,6 +2,7 @@
 
 #include "kill.h"
 
+#include <stdio.h>
 #include <stdlib.h>
 
 #include <sys/types.h>
@@ -13,6 +14,9 @@ int Kill(char** args) {
     return 1;
   }
   int pid = atoi(args[1]);
-  kill(pid, SIGTERM);
-  return 0;
+  int ret = 0;
+  if (ret=kill(pid, SIGTERM)) {
+    perror("kill");
+  }
+  return ret;
 }
