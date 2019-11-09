@@ -55,8 +55,12 @@ void PrintFile(struct dirent* entry, const char* path) {
     filePath[n] = 0;
   }
   strcat(filePath, entry->d_name);
+  errno = 0;
   stat(filePath, &buf);
-  if (errno) perror("ls");
+  if (errno) {
+    perror("ls");
+    errno = 0;
+  }
   char str[100];
   strmode(buf.st_mode, str);
   printf("%s", str);

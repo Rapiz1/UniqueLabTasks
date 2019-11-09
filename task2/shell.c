@@ -125,6 +125,7 @@ int ShExecute(char** args, int in) {
   for (pipe_pos = 0; args[pipe_pos]; pipe_pos++)
     if (!strcmp(args[pipe_pos], "|")) break;
   int pipe_fd[2] = {-1, -1};
+  errno = 0;
   if (args[pipe_pos]) {
     if (pipe(pipe_fd)) perror("rsh: pipe");
     if (dup2(pipe_fd[1], 1) == -1) perror("rsh: pipe: redirect");
@@ -137,6 +138,7 @@ int ShExecute(char** args, int in) {
   }
   else left_cmd = 0;
 
+  errno = 0;
   bool valid = true;
   for (int i = 0; args[i]; i++) {
     if (!strcmp(args[i], "<")) {

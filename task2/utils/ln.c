@@ -13,6 +13,7 @@ bool soft_link;
 bool IsDir(char* path) {
   struct stat statbuf;
   stat(path, &statbuf);
+  if (errno) return false;
   return (statbuf.st_mode & __S_IFMT) == __S_IFDIR;
 }
 int ln(char* src, char* dest) {
@@ -27,16 +28,18 @@ int ln(char* src, char* dest) {
     strcat(new_dest, basename(src));
   }
   int status = 0;
+  errno = 0;
   if (soft_link)
-    status |= symlink(src, dest);
+    status |= symlink(src, new_dest);
   else
-    status |= link(src, dest);
-  if (errno) perror("ln");
+    status |= link(src, new_dest);
+  if (errno)
+    perror("ln");
   return 0;
 }
 int main(int argc, char** argv) {
   puts("*rsh version*");
-  for (int ch;(ch = getopt(argc, argv, "s") != -1);) {
+  for (int ch;(ch = getopt(argc, argv, "s")) != -1;) {
     switch (ch) {
       case 's':
         soft_link = true;
@@ -56,7 +59,7 @@ int main(int argc, char** argv) {
     }
   }
   int status = 0;
-  for (int i = optind; i < argc; i++) {
+  for (int i = optind; i < argc - 1; i++) {
     status |= ln(argv[i], argv[argc-1]);
   }
   return status;
