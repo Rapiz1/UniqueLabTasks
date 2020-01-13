@@ -16,7 +16,7 @@ void cat(int f) {
   }
 }
 int main(int argc, char** argv) {
-  puts("*rsh version*");
+  //puts("*rsh version*");
   if (argc == 1) {
     cat(STDIN_FILENO);
   } else {

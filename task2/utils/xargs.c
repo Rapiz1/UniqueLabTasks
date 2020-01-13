@@ -78,7 +78,7 @@ int Launch(char* path, char** args) {
   return status;
 }
 int main(int argc, char** argv) {
-  puts("*rsh version*");
+  //puts("*rsh version*");
   int status = 0;
   char delim = '\n';
   int prog_pos = 1;

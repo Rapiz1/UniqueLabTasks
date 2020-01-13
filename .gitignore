@@ -4,3 +4,4 @@ stayup
 **/*.in
 **/*.out
 **/*.ans
+**/*.o
